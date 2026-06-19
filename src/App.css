@@ -1,0 +1,81 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+.chat-box {
+  height: 300px;
+  overflow-y: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.message {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.user {
+  justify-content: flex-end;
+}
+
+.bot {
+  justify-content: flex-start;
+}
+
+.bubble {
+  padding: 10px 15px;
+  border-radius: 15px;
+  max-width: 70%;
+}
+
+.user .bubble {
+  background: #DCF8C6;
+}
+
+.bot .bubble {
+  background: #ECECEC;
+}
+
+.input-area {
+  display: flex;
+  margin-top: 10px;
+  gap: 10px;
+}
+
+.input-area input {
+  flex: 1;
+  padding: 10px;
+}
+
+.card {
+  flex: 1;
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  border: 1px solid #ddd;
+}
+
+.transaction-list {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
