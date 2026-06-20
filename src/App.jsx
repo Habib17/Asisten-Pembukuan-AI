@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import "./App.css";
 
@@ -13,7 +13,15 @@ function App() {
 
   const [messages, setMessages] = useState([]);
 
-const [transactions, setTransactions] = useState([]);
+const [transactions, setTransactions] = useState(() => {
+
+  const saved =
+    localStorage.getItem("transactions");
+
+  return saved
+    ? JSON.parse(saved)
+    : [];
+});
 
     const analisaTransaksi = (text) => {
 
@@ -54,6 +62,25 @@ Jumlah: Rp${nominal.toLocaleString("id-ID")}`
       "Maaf, saya belum memahami transaksi tersebut."
   };
 };
+
+useEffect(() => {
+
+  localStorage.setItem(
+    "transactions",
+    JSON.stringify(transactions)
+  );
+
+}, [transactions]);
+
+const hapusSemua = () => {
+
+  localStorage.removeItem(
+    "transactions"
+  );
+
+  setTransactions([]);
+};
+
 
   const kirimPesan = () => {
 
@@ -167,6 +194,10 @@ const laba =
   </div>
 </div>
 
+  <button onClick={hapusSemua}>
+      Hapus Semua Data
+    </button>
+    
 <TransactionList
   transactions={transactions}
 />
