@@ -13,73 +13,104 @@ function App() {
 
   const [messages, setMessages] = useState([]);
 
-const [transactions, setTransactions] = useState(() => {
+  const [transactions, setTransactions] = useState(() => {
 
-  const saved =
-    localStorage.getItem("transactions");
+    const saved =
+      localStorage.getItem("transactions");
 
-  return saved
-    ? JSON.parse(saved)
-    : [];
-});
+    return saved
+      ? JSON.parse(saved)
+      : [];
+  });
 
-    const analisaTransaksi = (text) => {
+  const analisaTransaksi = (text) => {
+    if (text.toLowerCase() === "saldo") {
 
-  const pesan = text.toLowerCase();
-  const nominal =
-  ambilNominal(text);
+      return {
+        type: "saldo",
+        kategori: "Saldo",
+        balasan: "SALDO_REQUEST"
+      };
+    }
+    if (text.toLowerCase() === "bantuan") {
 
-  if (pesan.includes("beli")) {
+      return {
+        type: "help",
+        kategori: "Bantuan",
+        balasan:
+          `Perintah yang tersedia:
+            • beli minyak Rp80000
+            • jual kopi Rp25000
+            • laporan
+            • bantuan`
+      };
 
-    return {
-      type: "expense",
-      kategori: "Bahan Baku",
-balasan:
-`✓ Pengeluaran dicatat
+    }
+    if (text.toLowerCase() === "laporan") {
+
+      return {
+        type: "report",
+        kategori: "Laporan",
+        balasan: "LAPORAN_REQUEST"
+      };
+
+    }
+
+    const pesan = text.toLowerCase();
+    const nominal =
+      ambilNominal(text);
+
+    if (pesan.includes("beli")) {
+
+      return {
+        type: "expense",
+        kategori: "Bahan Baku",
+        balasan:
+          `✓ Pengeluaran dicatat
 
 Kategori: Bahan Baku
 Jumlah: Rp${nominal.toLocaleString("id-ID")}`
-    };
-  }
+      };
+    }
 
-  if (pesan.includes("jual")) {
+    if (pesan.includes("jual")) {
 
-    return {
-      type: "income",
-      kategori: "Penjualan",
-      balasan:
-        `✓ Penjualan dicatat
+      return {
+        type: "income",
+        kategori: "Penjualan",
+        balasan:
+          `✓ Penjualan dicatat
 
 Kategori: Penjualan
 Jumlah: Rp${nominal.toLocaleString("id-ID")}`
+      };
+    }
+
+    return {
+      type: "unknown",
+      kategori: "-",
+      balasan:
+        "Maaf, saya belum memahami transaksi tersebut."
     };
-  }
-
-  return {
-    type: "unknown",
-    kategori: "-",
-    balasan:
-      "Maaf, saya belum memahami transaksi tersebut."
   };
-};
 
-useEffect(() => {
+  useEffect(() => {
 
-  localStorage.setItem(
-    "transactions",
-    JSON.stringify(transactions)
-  );
+    localStorage.setItem(
+      "transactions",
+      JSON.stringify(transactions)
+    );
 
-}, [transactions]);
+  }, [transactions]);
 
-const hapusSemua = () => {
+  const hapusSemua = () => {
 
-  localStorage.removeItem(
-    "transactions"
-  );
+    localStorage.removeItem(
+      "transactions"
+    );
 
-  setTransactions([]);
-};
+    setTransactions([]);
+  };
 
 
   const kirimPesan = () => {
@@ -100,28 +131,100 @@ const hapusSemua = () => {
 
     setTimeout(() => {
 
-const hasil =
-  analisaTransaksi(userMessage.text);
-const nominal =
-  ambilNominal(userMessage.text);
+      const hasil =
+        analisaTransaksi(userMessage.text);
 
-setTransactions(prev => [
-  ...prev,
-  {
-    type: hasil.type,
-    kategori: hasil.kategori,
-    amount: nominal,
-    description: userMessage.text,
-  }
-]);
+      if (hasil.type === "report") {
 
-setMessages(prev => [
-  ...prev,
-  {
-    sender: "bot",
-    text: hasil.balasan,
-  },
-]);
+        const totalPenjualan = transactions
+          .filter(t => t.type === "income")
+          .reduce((sum, t) => sum + t.amount, 0);
+
+        const totalPengeluaran = transactions
+          .filter(t => t.type === "expense")
+          .reduce((sum, t) => sum + t.amount, 0);
+
+        const laba =
+          totalPenjualan - totalPengeluaran;
+
+        setTimeout(() => {
+
+          setMessages(prev => [
+            ...prev,
+            {
+              sender: "bot",
+              text:
+                `📊 Laporan Keuangan
+
+Total Penjualan : Rp${totalPenjualan.toLocaleString("id-ID")}
+
+Total Pengeluaran : Rp${totalPengeluaran.toLocaleString("id-ID")}
+
+Laba : Rp${laba.toLocaleString("id-ID")}`
+            }
+          ]);
+
+        }, 1000);
+
+        return;
+      }
+      if (hasil.type === "saldo") {
+
+        const totalPenjualan = transactions
+          .filter(t => t.type === "income")
+          .reduce((sum, t) => sum + t.amount, 0);
+
+        const totalPengeluaran = transactions
+          .filter(t => t.type === "expense")
+          .reduce((sum, t) => sum + t.amount, 0);
+
+        const saldo =
+          totalPenjualan - totalPengeluaran;
+
+        setTimeout(() => {
+
+          setMessages(prev => [
+            ...prev,
+            {
+              sender: "bot",
+              text:
+                `💰 Saldo Saat Ini
+
+Rp${saldo.toLocaleString("id-ID")}`
+            }
+          ]);
+
+        }, 1000);
+
+        return;
+      }
+      const nominal =
+        ambilNominal(userMessage.text);
+
+      if (
+        hasil.type === "income" ||
+        hasil.type === "expense"
+      ) {
+
+        setTransactions(prev => [
+          ...prev,
+          {
+            type: hasil.type,
+            kategori: hasil.kategori,
+            amount: nominal,
+            description: userMessage.text,
+          }
+        ]);
+
+      }
+
+      setMessages(prev => [
+        ...prev,
+        {
+          sender: "bot",
+          text: hasil.balasan,
+        },
+      ]);
 
     }, 1000);
   };
@@ -130,77 +233,77 @@ setMessages(prev => [
 
   const ambilNominal = (text) => {
 
-  const angka = text.match(/\d+/g);
+    const angka = text.match(/\d+/g);
 
-  if (!angka) return 0;
+    if (!angka) return 0;
 
-  return parseInt(
-    angka.join("")
-  );
-};
+    return parseInt(
+      angka.join("")
+    );
+  };
 
 
-console.log(transactions);
-const totalPenjualan = transactions
-  .filter(t => t.type === "income")
-  .reduce((sum, t) => sum + t.amount, 0);
+  console.log(transactions);
+  const totalPenjualan = transactions
+    .filter(t => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
 
-const totalPengeluaran = transactions
-  .filter(t => t.type === "expense")
-  .reduce((sum, t) => sum + t.amount, 0);
+  const totalPengeluaran = transactions
+    .filter(t => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
 
-const laba =
-  totalPenjualan - totalPengeluaran;
+  const laba =
+    totalPenjualan - totalPengeluaran;
 
 
   return (
     <div className="container">
       <h1>Asisten Pembukuan AI</h1>
-<div
-  style={{
-    display: "flex",
-    gap: "10px",
-    marginBottom: "20px",
-  }}
->
-  <div className="card">
-    <h3>Penjualan</h3>
-    <p>
-      Rp
-      {totalPenjualan.toLocaleString(
-        "id-ID"
-      )}
-    </p>
-  </div>
+      <div
+        style={{
+          display: "flex",
+          gap: "10px",
+          marginBottom: "20px",
+        }}
+      >
+        <div className="card">
+          <h3>Penjualan</h3>
+          <p>
+            Rp
+            {totalPenjualan.toLocaleString(
+              "id-ID"
+            )}
+          </p>
+        </div>
 
-  <div className="card">
-    <h3>Pengeluaran</h3>
-    <p>
-      Rp
-      {totalPengeluaran.toLocaleString(
-        "id-ID"
-      )}
-    </p>
-  </div>
+        <div className="card">
+          <h3>Pengeluaran</h3>
+          <p>
+            Rp
+            {totalPengeluaran.toLocaleString(
+              "id-ID"
+            )}
+          </p>
+        </div>
 
-  <div className="card">
-    <h3>Laba</h3>
-    <p>
-      Rp
-      {laba.toLocaleString(
-        "id-ID"
-      )}
-    </p>
-  </div>
-</div>
+        <div className="card">
+          <h3>Laba</h3>
+          <p>
+            Rp
+            {laba.toLocaleString(
+              "id-ID"
+            )}
+          </p>
+        </div>
+      </div>
 
-  <button onClick={hapusSemua}>
-      Hapus Semua Data
-    </button>
-    
-<TransactionList
-  transactions={transactions}
-/>
+      <button onClick={hapusSemua}>
+        Hapus Semua Data
+      </button>
+
+      <TransactionList
+        transactions={transactions}
+      />
       <ChatBox
         messages={messages}
       />

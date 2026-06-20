@@ -39,11 +39,11 @@ body {
 }
 
 .user .bubble {
-  background: #DCF8C6;
+  background: #dcf8c6;
 }
 
 .bot .bubble {
-  background: #ECECEC;
+  background: #ececec;
 }
 
 .input-area {
@@ -85,4 +85,3 @@ button {
   cursor: pointer;
   margin-bottom: 15px;
 }
-
