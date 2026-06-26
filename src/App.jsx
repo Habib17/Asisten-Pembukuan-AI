@@ -1,278 +1,251 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
-import "./App.css";
+import './App.css';
 
-import ChatBox from "./components/ChatBox";
-import InputBox from "./components/InputBox";
-import TransactionList from "./components/TransactionList";
-
+import ChatBox from './components/ChatBox';
+import InputBox from './components/InputBox';
+import TransactionList from './components/TransactionList';
 
 function App() {
-
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
 
   const [messages, setMessages] = useState([]);
 
   const [transactions, setTransactions] = useState(() => {
+    const saved = localStorage.getItem('transactions');
 
-    const saved =
-      localStorage.getItem("transactions");
-
-    return saved
-      ? JSON.parse(saved)
-      : [];
+    return saved ? JSON.parse(saved) : [];
   });
 
   const analisaTransaksi = (text) => {
-    if (text.toLowerCase() === "saldo") {
-
+    if (text.toLowerCase() === 'riwayat') {
       return {
-        type: "saldo",
-        kategori: "Saldo",
-        balasan: "SALDO_REQUEST"
+        type: 'history',
+        kategori: 'Riwayat',
+        balasan: 'HISTORY_REQUEST',
       };
     }
-    if (text.toLowerCase() === "bantuan") {
-
+    if (text.toLowerCase() === 'saldo') {
       return {
-        type: "help",
-        kategori: "Bantuan",
-        balasan:
-          `Perintah yang tersedia:
+        type: 'saldo',
+        kategori: 'Saldo',
+        balasan: 'SALDO_REQUEST',
+      };
+    }
+    if (text.toLowerCase() === 'bantuan') {
+      return {
+        type: 'help',
+        kategori: 'Bantuan',
+        balasan: `Perintah yang tersedia:
             • beli minyak Rp80000
             • jual kopi Rp25000
             • laporan
-            • bantuan`
+            • bantuan`,
       };
-
     }
-    if (text.toLowerCase() === "laporan") {
-
+    if (text.toLowerCase() === 'laporan') {
       return {
-        type: "report",
-        kategori: "Laporan",
-        balasan: "LAPORAN_REQUEST"
+        type: 'report',
+        kategori: 'Laporan',
+        balasan: 'LAPORAN_REQUEST',
       };
-
     }
 
     const pesan = text.toLowerCase();
-    const nominal =
-      ambilNominal(text);
+    const nominal = ambilNominal(text);
 
-    if (pesan.includes("beli")) {
-
+    if (pesan.includes('beli')) {
       return {
-        type: "expense",
-        kategori: "Bahan Baku",
-        balasan:
-          `✓ Pengeluaran dicatat
+        type: 'expense',
+        kategori: 'Bahan Baku',
+        balasan: `✓ Pengeluaran dicatat
 
 Kategori: Bahan Baku
-Jumlah: Rp${nominal.toLocaleString("id-ID")}`
+Jumlah: Rp${nominal.toLocaleString('id-ID')}`,
       };
     }
 
-    if (pesan.includes("jual")) {
-
+    if (pesan.includes('jual')) {
       return {
-        type: "income",
-        kategori: "Penjualan",
-        balasan:
-          `✓ Penjualan dicatat
+        type: 'income',
+        kategori: 'Penjualan',
+        balasan: `✓ Penjualan dicatat
 
 Kategori: Penjualan
-Jumlah: Rp${nominal.toLocaleString("id-ID")}`
+Jumlah: Rp${nominal.toLocaleString('id-ID')}`,
       };
     }
 
     return {
-      type: "unknown",
-      kategori: "-",
-      balasan:
-        "Maaf, saya belum memahami transaksi tersebut."
+      type: 'unknown',
+      kategori: '-',
+      balasan: 'Maaf, saya belum memahami transaksi tersebut.',
     };
   };
 
   useEffect(() => {
-
-    localStorage.setItem(
-      "transactions",
-      JSON.stringify(transactions)
-    );
-
+    localStorage.setItem('transactions', JSON.stringify(transactions));
   }, [transactions]);
 
   const hapusSemua = () => {
-
-    localStorage.removeItem(
-      "transactions"
-    );
+    localStorage.removeItem('transactions');
 
     setTransactions([]);
   };
 
-
   const kirimPesan = () => {
-
     if (!input.trim()) return;
 
     const userMessage = {
-      sender: "user",
+      sender: 'user',
       text: input,
     };
 
-    setMessages(prev => [
-      ...prev,
-      userMessage,
-    ]);
+    setMessages((prev) => [...prev, userMessage]);
 
-    setInput("");
+    setInput('');
 
     setTimeout(() => {
+      const hasil = analisaTransaksi(userMessage.text);
 
-      const hasil =
-        analisaTransaksi(userMessage.text);
+      if (hasil.type === 'history') {
+        const lastTransactions = transactions.slice(-5).reverse();
 
-      if (hasil.type === "report") {
+        let laporanRiwayat = '📋 5 Transaksi Terakhir\n\n';
 
-        const totalPenjualan = transactions
-          .filter(t => t.type === "income")
-          .reduce((sum, t) => sum + t.amount, 0);
-
-        const totalPengeluaran = transactions
-          .filter(t => t.type === "expense")
-          .reduce((sum, t) => sum + t.amount, 0);
-
-        const laba =
-          totalPenjualan - totalPengeluaran;
+        if (lastTransactions.length === 0) {
+          laporanRiwayat = 'Belum ada transaksi.';
+        } else {
+          lastTransactions.forEach((trx, index) => {
+            laporanRiwayat += `${index + 1}. ${trx.description}\n`;
+          });
+        }
 
         setTimeout(() => {
-
-          setMessages(prev => [
+          setMessages((prev) => [
             ...prev,
             {
-              sender: "bot",
-              text:
-                `📊 Laporan Keuangan
-
-Total Penjualan : Rp${totalPenjualan.toLocaleString("id-ID")}
-
-Total Pengeluaran : Rp${totalPengeluaran.toLocaleString("id-ID")}
-
-Laba : Rp${laba.toLocaleString("id-ID")}`
-            }
+              sender: 'bot',
+              text: laporanRiwayat,
+            },
           ]);
-
         }, 1000);
 
         return;
       }
-      if (hasil.type === "saldo") {
 
+      if (hasil.type === 'report') {
         const totalPenjualan = transactions
-          .filter(t => t.type === "income")
+          .filter((t) => t.type === 'income')
           .reduce((sum, t) => sum + t.amount, 0);
 
         const totalPengeluaran = transactions
-          .filter(t => t.type === "expense")
+          .filter((t) => t.type === 'expense')
           .reduce((sum, t) => sum + t.amount, 0);
 
-        const saldo =
-          totalPenjualan - totalPengeluaran;
+        const laba = totalPenjualan - totalPengeluaran;
 
         setTimeout(() => {
-
-          setMessages(prev => [
+          setMessages((prev) => [
             ...prev,
             {
-              sender: "bot",
-              text:
-                `💰 Saldo Saat Ini
+              sender: 'bot',
+              text: `📊 Laporan Keuangan
 
-Rp${saldo.toLocaleString("id-ID")}`
-            }
+Total Penjualan : Rp${totalPenjualan.toLocaleString('id-ID')}
+
+Total Pengeluaran : Rp${totalPengeluaran.toLocaleString('id-ID')}
+
+Laba : Rp${laba.toLocaleString('id-ID')}`,
+            },
           ]);
-
         }, 1000);
 
         return;
       }
-      const nominal =
-        ambilNominal(userMessage.text);
+      if (hasil.type === 'saldo') {
+        const totalPenjualan = transactions
+          .filter((t) => t.type === 'income')
+          .reduce((sum, t) => sum + t.amount, 0);
 
-      if (
-        hasil.type === "income" ||
-        hasil.type === "expense"
-      ) {
+        const totalPengeluaran = transactions
+          .filter((t) => t.type === 'expense')
+          .reduce((sum, t) => sum + t.amount, 0);
 
-        setTransactions(prev => [
+        const saldo = totalPenjualan - totalPengeluaran;
+
+        setTimeout(() => {
+          setMessages((prev) => [
+            ...prev,
+            {
+              sender: 'bot',
+              text: `💰 Saldo Saat Ini
+
+Rp${saldo.toLocaleString('id-ID')}`,
+            },
+          ]);
+        }, 1000);
+
+        return;
+      }
+      const nominal = ambilNominal(userMessage.text);
+
+      if (hasil.type === 'income' || hasil.type === 'expense') {
+        setTransactions((prev) => [
           ...prev,
           {
             type: hasil.type,
             kategori: hasil.kategori,
             amount: nominal,
             description: userMessage.text,
-          }
+          },
         ]);
-
       }
 
-      setMessages(prev => [
+      setMessages((prev) => [
         ...prev,
         {
-          sender: "bot",
+          sender: 'bot',
           text: hasil.balasan,
         },
       ]);
-
     }, 1000);
   };
 
-
-
   const ambilNominal = (text) => {
-
     const angka = text.match(/\d+/g);
 
     if (!angka) return 0;
 
-    return parseInt(
-      angka.join("")
-    );
+    return parseInt(angka.join(''));
   };
-
 
   console.log(transactions);
   const totalPenjualan = transactions
-    .filter(t => t.type === "income")
+    .filter((t) => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
 
   const totalPengeluaran = transactions
-    .filter(t => t.type === "expense")
+    .filter((t) => t.type === 'expense')
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const laba =
-    totalPenjualan - totalPengeluaran;
-
+  const laba = totalPenjualan - totalPengeluaran;
 
   return (
     <div className="container">
       <h1>Asisten Pembukuan AI</h1>
       <div
         style={{
-          display: "flex",
-          gap: "10px",
-          marginBottom: "20px",
+          display: 'flex',
+          gap: '10px',
+          marginBottom: '20px',
         }}
       >
         <div className="card">
           <h3>Penjualan</h3>
           <p>
             Rp
-            {totalPenjualan.toLocaleString(
-              "id-ID"
-            )}
+            {totalPenjualan.toLocaleString('id-ID')}
           </p>
         </div>
 
@@ -280,9 +253,7 @@ Rp${saldo.toLocaleString("id-ID")}`
           <h3>Pengeluaran</h3>
           <p>
             Rp
-            {totalPengeluaran.toLocaleString(
-              "id-ID"
-            )}
+            {totalPengeluaran.toLocaleString('id-ID')}
           </p>
         </div>
 
@@ -290,29 +261,17 @@ Rp${saldo.toLocaleString("id-ID")}`
           <h3>Laba</h3>
           <p>
             Rp
-            {laba.toLocaleString(
-              "id-ID"
-            )}
+            {laba.toLocaleString('id-ID')}
           </p>
         </div>
       </div>
 
-      <button onClick={hapusSemua}>
-        Hapus Semua Data
-      </button>
+      <button onClick={hapusSemua}>Hapus Semua Data</button>
 
-      <TransactionList
-        transactions={transactions}
-      />
-      <ChatBox
-        messages={messages}
-      />
+      <TransactionList transactions={transactions} />
+      <ChatBox messages={messages} />
 
-      <InputBox
-        input={input}
-        setInput={setInput}
-        kirimPesan={kirimPesan}
-      />
+      <InputBox input={input} setInput={setInput} kirimPesan={kirimPesan} />
     </div>
   );
 }
