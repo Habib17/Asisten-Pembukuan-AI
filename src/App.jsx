@@ -18,6 +18,21 @@ function App() {
   });
 
   const analisaTransaksi = (text) => {
+    if (text.toLowerCase() === 'hapus transaksi terakhir') {
+      return {
+        type: 'delete_last',
+        kategori: 'Delete',
+        balasan: 'DELETE_LAST',
+      };
+    }
+
+    if (text.toLowerCase() === 'hapus semua transaksi') {
+      return {
+        type: 'delete_all',
+        kategori: 'Delete',
+        balasan: 'DELETE_ALL',
+      };
+    }
     if (text.toLowerCase() === 'riwayat') {
       return {
         type: 'history',
@@ -108,6 +123,52 @@ Jumlah: Rp${nominal.toLocaleString('id-ID')}`,
     setTimeout(() => {
       const hasil = analisaTransaksi(userMessage.text);
 
+      if (hasil.type === 'delete_all') {
+        setTransactions([]);
+
+        localStorage.removeItem('transactions');
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: 'bot',
+            text: '⚠️ Semua transaksi berhasil dihapus.',
+          },
+        ]);
+
+        return;
+      }
+
+      if (hasil.type === 'delete_last') {
+        if (transactions.length === 0) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              sender: 'bot',
+              text: 'Belum ada transaksi.',
+            },
+          ]);
+
+          return;
+        }
+
+        const transaksiTerakhir = transactions[transactions.length - 1];
+
+        setTransactions((prev) => prev.slice(0, -1));
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: 'bot',
+            text: `✅ Transaksi berhasil dihapus
+
+${transaksiTerakhir.description}`,
+          },
+        ]);
+
+        return;
+      }
+
       if (hasil.type === 'history') {
         const lastTransactions = transactions.slice(-5).reverse();
 
@@ -117,7 +178,10 @@ Jumlah: Rp${nominal.toLocaleString('id-ID')}`,
           laporanRiwayat = 'Belum ada transaksi.';
         } else {
           lastTransactions.forEach((trx, index) => {
-            laporanRiwayat += `${index + 1}. ${trx.description}\n`;
+            laporanRiwayat += `${index + 1}. ${
+              trx.type === 'income' ? '🟢' : '🔴'
+            } ${trx.description}
+(Rp${trx.amount.toLocaleString('id-ID')})\n`;
           });
         }
 
