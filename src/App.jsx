@@ -20,56 +20,54 @@ function App() {
   });
 
   const analisaTransaksi = (text) => {
-    if (text.toLowerCase() === 'hapus transaksi terakhir') {
-      return {
-        type: 'delete_last',
-        kategori: 'Delete',
-        balasan: 'DELETE_LAST',
-      };
+    const pesan = text.toLowerCase().trim();
+
+    // ===========================
+    // PERINTAH CHAT
+    // ===========================
+
+    switch (pesan) {
+      case 'laporan':
+        return {
+          type: 'report',
+          kategori: 'Laporan',
+        };
+
+      case 'saldo':
+        return {
+          type: 'saldo',
+          kategori: 'Saldo',
+        };
+
+      case 'riwayat':
+        return {
+          type: 'history',
+          kategori: 'Riwayat',
+        };
+
+      case 'hapus transaksi terakhir':
+        return {
+          type: 'delete_last',
+          kategori: 'Delete',
+        };
+
+      case 'hapus semua transaksi':
+        return {
+          type: 'delete_all',
+          kategori: 'Delete',
+        };
+
+      case 'bantuan':
+        return {
+          type: 'help',
+          kategori: 'Bantuan',
+        };
     }
 
-    if (text.toLowerCase() === 'hapus semua transaksi') {
-      return {
-        type: 'delete_all',
-        kategori: 'Delete',
-        balasan: 'DELETE_ALL',
-      };
-    }
-    if (text.toLowerCase() === 'riwayat') {
-      return {
-        type: 'history',
-        kategori: 'Riwayat',
-        balasan: 'HISTORY_REQUEST',
-      };
-    }
-    if (text.toLowerCase() === 'saldo') {
-      return {
-        type: 'saldo',
-        kategori: 'Saldo',
-        balasan: 'SALDO_REQUEST',
-      };
-    }
-    if (text.toLowerCase() === 'bantuan') {
-      return {
-        type: 'help',
-        kategori: 'Bantuan',
-        balasan: `Perintah yang tersedia:
-            • beli minyak Rp80000
-            • jual kopi Rp25000
-            • laporan
-            • bantuan`,
-      };
-    }
-    if (text.toLowerCase() === 'laporan') {
-      return {
-        type: 'report',
-        kategori: 'Laporan',
-        balasan: 'LAPORAN_REQUEST',
-      };
-    }
-
-    const pesan = text.toLowerCase();
     const nominal = ambilNominal(text);
+    // ===========================
+    // TRANSAKSI
+    // ===========================
 
     if (pesan.includes('beli')) {
       return {
@@ -92,7 +90,9 @@ Kategori: Penjualan
 Jumlah: Rp${nominal.toLocaleString('id-ID')}`,
       };
     }
-
+    // ===========================
+    // DEFAULT
+    // ===========================
     return {
       type: 'unknown',
       kategori: '-',
