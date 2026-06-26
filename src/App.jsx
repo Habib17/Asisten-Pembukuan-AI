@@ -11,6 +11,8 @@ function App() {
 
   const [messages, setMessages] = useState([]);
 
+  const [pendingAction, setPendingAction] = useState(null);
+
   const [transactions, setTransactions] = useState(() => {
     const saved = localStorage.getItem('transactions');
 
@@ -123,22 +125,76 @@ Jumlah: Rp${nominal.toLocaleString('id-ID')}`,
     setTimeout(() => {
       const hasil = analisaTransaksi(userMessage.text);
 
-      if (hasil.type === 'delete_all') {
-        setTransactions([]);
+      if (pendingAction === 'DELETE_ALL') {
+        const jawaban = userMessage.text.toLowerCase();
 
-        localStorage.removeItem('transactions');
+        if (jawaban === 'ya') {
+          setTransactions([]);
+
+          localStorage.removeItem('transactions');
+
+          setMessages((prev) => [
+            ...prev,
+            userMessage,
+            {
+              sender: 'bot',
+              text: '✅ Semua transaksi berhasil dihapus.',
+            },
+          ]);
+
+          setPendingAction(null);
+
+          return;
+        }
+
+        if (jawaban === 'tidak') {
+          setMessages((prev) => [
+            ...prev,
+            userMessage,
+            {
+              sender: 'bot',
+              text: '👍 Penghapusan dibatalkan.',
+            },
+          ]);
+
+          setPendingAction(null);
+
+          return;
+        }
 
         setMessages((prev) => [
           ...prev,
+          userMessage,
           {
             sender: 'bot',
-            text: '⚠️ Semua transaksi berhasil dihapus.',
+            text: "Ketik 'ya' atau 'tidak'.",
           },
         ]);
 
         return;
       }
 
+      if (hasil.type === 'delete_all') {
+        setPendingAction('DELETE_ALL');
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: 'bot',
+            text: `⚠️ Anda yakin ingin menghapus semua transaksi?
+
+Ketik:
+
+ya
+
+atau
+
+tidak`,
+          },
+        ]);
+
+        return;
+      }
       if (hasil.type === 'delete_last') {
         if (transactions.length === 0) {
           setMessages((prev) => [
