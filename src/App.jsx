@@ -61,6 +61,16 @@ function App() {
         return {
           type: 'help',
           kategori: 'Bantuan',
+          balasan: `📖 Perintah yang tersedia
+
+• beli minyak Rp80000
+• jual kopi Rp25000
+• laporan
+• saldo
+• riwayat
+• hapus transaksi terakhir
+• hapus semua transaksi
+• bantuan`,
         };
     }
 
@@ -308,6 +318,19 @@ Rp${saldo.toLocaleString('id-ID')}`,
 
         return;
       }
+
+      if (hasil.type === 'help') {
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: 'bot',
+            text: hasil.balasan,
+          },
+        ]);
+
+        return;
+      }
+
       const nominal = ambilNominal(userMessage.text);
 
       if (hasil.type === 'income' || hasil.type === 'expense') {
