@@ -145,7 +145,6 @@ Jumlah: Rp${nominal.toLocaleString('id-ID')}`,
 
           setMessages((prev) => [
             ...prev,
-            userMessage,
             {
               sender: 'bot',
               text: '✅ Semua transaksi berhasil dihapus.',
@@ -160,7 +159,6 @@ Jumlah: Rp${nominal.toLocaleString('id-ID')}`,
         if (jawaban === 'tidak') {
           setMessages((prev) => [
             ...prev,
-            userMessage,
             {
               sender: 'bot',
               text: '👍 Penghapusan dibatalkan.',
@@ -174,7 +172,6 @@ Jumlah: Rp${nominal.toLocaleString('id-ID')}`,
 
         setMessages((prev) => [
           ...prev,
-          userMessage,
           {
             sender: 'bot',
             text: "Ketik 'ya' atau 'tidak'.",
