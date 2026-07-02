@@ -51,21 +51,7 @@ function App() {
   const [messages, setMessages] = useState([
     {
       sender: 'bot',
-      text: `👋 Selamat datang di Asisten Pembukuan AI!
-
-Saya siap membantu Anda mencatat transaksi dan membuat laporan keuangan.
-
-📝 Contoh:
-• Jual kopi Rp25000
-• Beli minyak Rp80000
-
-📌 Perintah yang tersedia:
-• laporan
-• saldo
-• riwayat
-• bantuan
-
-Silakan ketik transaksi pertama Anda 😊`,
+      text: getWelcomeMessage(),
     },
   ]);
 
