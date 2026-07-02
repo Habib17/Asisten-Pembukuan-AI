@@ -61,16 +61,29 @@ function App() {
         return {
           type: 'help',
           kategori: 'Bantuan',
-          balasan: `📖 Perintah yang tersedia
+          balasan: `🤖 Halo! Saya siap membantu pembukuan usaha Anda.
 
-• beli minyak Rp80000
-• jual kopi Rp25000
+Saya bisa membantu Anda untuk:
+
+📌 Mencatat transaksi
+Contoh:
+• Jual kopi Rp25000
+• Beli minyak Rp80000
+
+📊 Melihat laporan
 • laporan
+
+💰 Melihat saldo
 • saldo
+
+📋 Melihat riwayat
 • riwayat
+
+🗑 Menghapus transaksi
 • hapus transaksi terakhir
 • hapus semua transaksi
-• bantuan`,
+
+Silakan ketik transaksi Anda menggunakan bahasa yang sederhana.`,
         };
     }
 
@@ -278,12 +291,16 @@ ${transaksiTerakhir.description}`,
             {
               sender: 'bot',
               text: `📊 Laporan Keuangan
+────────────────────────
 
-Total Penjualan : Rp${totalPenjualan.toLocaleString('id-ID')}
+💰 Penjualan
+Rp${totalPenjualan.toLocaleString('id-ID')}
 
-Total Pengeluaran : Rp${totalPengeluaran.toLocaleString('id-ID')}
+💸 Pengeluaran
+Rp${totalPengeluaran.toLocaleString('id-ID')}
 
-Laba : Rp${laba.toLocaleString('id-ID')}`,
+📈 Laba
+Rp${laba.toLocaleString('id-ID')}`,
             },
           ]);
         }, 1000);
