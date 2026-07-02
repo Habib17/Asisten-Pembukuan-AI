@@ -6,10 +6,68 @@ import ChatBox from './components/ChatBox';
 import InputBox from './components/InputBox';
 import TransactionList from './components/TransactionList';
 
+function getWelcomeMessage() {
+  const jam = new Date().getHours();
+
+  let salam = '';
+  let motivasi = '';
+
+  if (jam >= 5 && jam < 11) {
+    salam = '☀️ Selamat pagi!';
+    motivasi = 'Semoga usaha Anda laris manis hari ini.';
+  } else if (jam >= 11 && jam < 15) {
+    salam = '🌤 Selamat siang!';
+    motivasi = 'Semoga penjualan Anda terus meningkat.';
+  } else if (jam >= 15 && jam < 18) {
+    salam = '🌇 Selamat sore!';
+    motivasi = 'Jangan lupa catat semua transaksi hari ini.';
+  } else {
+    salam = '🌙 Selamat malam!';
+    motivasi = 'Saatnya mengecek laporan keuangan hari ini.';
+  }
+
+  return `${salam}
+
+${motivasi}
+
+Saya siap membantu Anda mencatat transaksi dan membuat laporan keuangan.
+
+📝 Contoh:
+• Jual kopi Rp25000
+• Beli minyak Rp80000
+
+📌 Perintah:
+• laporan
+• saldo
+• riwayat
+• bantuan
+
+Silakan ketik transaksi pertama Anda 😊`;
+}
+
 function App() {
   const [input, setInput] = useState('');
 
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    {
+      sender: 'bot',
+      text: `👋 Selamat datang di Asisten Pembukuan AI!
+
+Saya siap membantu Anda mencatat transaksi dan membuat laporan keuangan.
+
+📝 Contoh:
+• Jual kopi Rp25000
+• Beli minyak Rp80000
+
+📌 Perintah yang tersedia:
+• laporan
+• saldo
+• riwayat
+• bantuan
+
+Silakan ketik transaksi pertama Anda 😊`,
+    },
+  ]);
 
   const [pendingAction, setPendingAction] = useState(null);
 
