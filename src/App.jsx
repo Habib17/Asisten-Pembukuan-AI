@@ -5,9 +5,11 @@ import './App.css';
 import ChatBox from './components/ChatBox';
 import InputBox from './components/InputBox';
 import TransactionList from './components/TransactionList';
+import { loadTransactions, saveTransactions } from './utils/storage';
 
-function getWelcomeMessage() {
+function getWelcomeMessage(transactions) {
   const jam = new Date().getHours();
+  const jumlahTransaksi = transactions.length;
 
   let salam = '';
   let motivasi = '';
@@ -26,42 +28,57 @@ function getWelcomeMessage() {
     motivasi = 'Saatnya mengecek laporan keuangan hari ini.';
   }
 
+  let isiPesan = '';
+
+  if (jumlahTransaksi === 0) {
+    isiPesan = `Saya siap membantu Anda mencatat transaksi pertama hari ini.
+
+📝 Contoh:
+• Jual kopi Rp25000
+• Beli minyak Rp80000`;
+  } else {
+    isiPesan = `Selamat datang kembali!
+
+📊 Saat ini Anda memiliki ${jumlahTransaksi} transaksi yang telah tersimpan.
+
+Ketik "laporan" untuk melihat ringkasan usaha Anda.
+
+Ketik "riwayat" untuk melihat transaksi terakhir.`;
+  }
+
   return `${salam}
 
 ${motivasi}
 
-Saya siap membantu Anda mencatat transaksi dan membuat laporan keuangan.
+${isiPesan}
 
-📝 Contoh:
-• Jual kopi Rp25000
-• Beli minyak Rp80000
+📌 Perintah yang tersedia:
 
-📌 Perintah:
 • laporan
 • saldo
 • riwayat
-• bantuan
-
-Silakan ketik transaksi pertama Anda 😊`;
+• bantuan`;
 }
 
 function App() {
   const [input, setInput] = useState('');
 
+  const initialTransactions = loadTransactions();
+
+  const [transactions, setTransactions] = useState(initialTransactions);
+
   const [messages, setMessages] = useState([
     {
       sender: 'bot',
-      text: getWelcomeMessage(),
+      text: getWelcomeMessage(initialTransactions),
     },
   ]);
 
   const [pendingAction, setPendingAction] = useState(null);
 
-  const [transactions, setTransactions] = useState(() => {
-    const saved = localStorage.getItem('transactions');
-
-    return saved ? JSON.parse(saved) : [];
-  });
+  useEffect(() => {
+    saveTransactions(transactions);
+  }, [transactions]);
 
   const analisaTransaksi = (text) => {
     const pesan = text.toLowerCase().trim();
