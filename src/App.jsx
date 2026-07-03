@@ -11,8 +11,8 @@ function getWelcomeMessage(transactions) {
   const jam = new Date().getHours();
   const jumlahTransaksi = transactions.length;
 
-  let salam = '';
-  let motivasi = '';
+  let salam;
+  let motivasi;
 
   if (jam >= 5 && jam < 11) {
     salam = '☀️ Selamat pagi!';
@@ -28,7 +28,7 @@ function getWelcomeMessage(transactions) {
     motivasi = 'Saatnya mengecek laporan keuangan hari ini.';
   }
 
-  let isiPesan = '';
+  let isiPesan;
 
   if (jumlahTransaksi === 0) {
     isiPesan = `Saya siap membantu Anda mencatat transaksi pertama hari ini.
