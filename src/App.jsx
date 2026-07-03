@@ -490,6 +490,18 @@ Rp${saldo.toLocaleString('id-ID')}`,
       <ChatBox messages={messages} />
 
       <InputBox input={input} setInput={setInput} kirimPesan={kirimPesan} />
+      <footer
+        style={{
+          marginTop: '30px',
+          textAlign: 'center',
+          color: '#666',
+          fontSize: '14px',
+          padding: '20px 0',
+          borderTop: '1px solid #ddd',
+        }}
+      >
+        © {new Date().getFullYear()} Muhamad Habib. All Rights Reserved.
+      </footer>
     </div>
   );
 }
