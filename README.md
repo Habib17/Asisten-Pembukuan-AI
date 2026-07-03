@@ -1,3 +1,24 @@
+# Asisten Pembukuan AI
+
+Aplikasi pembukuan UMKM berbasis Chat AI menggunakan React.
+
+## Fitur
+
+- Chat Interface
+- Pencatatan Transaksi
+- Dashboard
+- Saldo
+- Laporan
+- Riwayat
+- LocalStorage
+
+## Teknologi
+
+- React
+- Vite
+- JavaScript
+- CSS
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
